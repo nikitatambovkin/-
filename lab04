@@ -1,0 +1,261 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+class Matrix;
+class Vector;
+
+Vector operator*(const Vector& v, const Matrix& m);
+Vector operator*(const Matrix& m, const Vector& v);
+
+class Vector {
+private:
+    vector<double> elements;
+
+public:
+    Vector(vector<double> values) : elements(values) {}
+
+    int size() const {
+        return elements.size();
+    }
+
+    double& operator[](int index) {
+        return elements[index];
+    }
+
+    const double& operator[](int index) const {
+        return elements[index];
+    }
+    Vector operator+(const Vector& other) const {
+        if (size() != other.size()) {
+            throw invalid_argument("Векторы должны иметь одинаковый размер");
+        }
+
+        vector<double> result(size());
+        for (int i = 0; i < size(); i++) {
+            result[i] = elements[i] + other.elements[i];
+        }
+
+        return Vector(result);
+    }
+
+    Vector operator-(const Vector& other) const {
+        if (size() != other.size()) {
+            throw invalid_argument("Векторы должны иметь одинаковый размер");
+        }
+
+        vector<double> result(size());
+        for (int i = 0; i < size(); i++) {
+            result[i] = elements[i] - other.elements[i];
+        }
+
+        return Vector(result);
+    }
+
+    double operator*(const Vector& other) const {
+        if (size() != other.size()) {
+            throw invalid_argument("Векторы должны иметь одинаковый размер");
+        }
+
+        double result = 0.0;
+        for (int i = 0; i < size(); i++) {
+            result += elements[i] * other.elements[i];
+        }
+
+        return result;
+    }
+
+    Vector operator*(double scalar) const {
+        vector<double> result(size());
+        for (int i = 0; i < size(); i++) {
+            result[i] = elements[i] * scalar;
+        }
+
+        return Vector(result);
+    }
+
+    Vector operator/(double scalar) const {
+        if (scalar == 0) {
+            throw invalid_argument("Деление на ноль");
+        }
+
+        vector<double> result(size());
+        for (int i = 0; i < size(); i++) {
+            result[i] = elements[i] / scalar;
+        }
+
+        return Vector(result);
+    }
+
+    friend Vector operator*(const Vector& v, const Matrix& m);
+    friend Vector operator*(const Matrix& m, const Vector& v);
+};
+
+class Matrix {
+private:
+    vector<vector<double>> elements;
+
+public:
+    Matrix(vector<vector<double>> values) : elements(values) {}
+
+    int rows() const {
+        return elements.size();
+    }
+
+    int columns() const {
+        if (rows() > 0) {
+            return elements[0].size();
+        }
+        return 0;
+    }
+
+    vector<double>& operator[](int index) {
+        return elements[index];
+    }
+
+    const vector<double>& operator[](int index) const {
+        return elements[index];
+    }
+
+    Matrix operator+(const Matrix& other) const {
+        if (rows() != other.rows() || columns() != other.columns()) {
+            throw invalid_argument("Матрицы должны иметь одинаковый размер");
+        }
+
+        vector<vector<double>> result(rows(), vector<double>(columns()));
+        for (int i = 0; i < rows(); i++) {
+            for (int j = 0; j < columns(); j++) {
+                result[i][j] = elements[i][j] + other.elements[i][j];
+            }
+        }
+
+        return Matrix(result);
+    }
+
+    Matrix operator-(const Matrix& other) const {
+        if (rows() != other.rows() || columns() != other.columns()) {
+            throw invalid_argument("Матрицы должны иметь одинаковый размер");
+        }
+
+        vector<vector<double>> result(rows(), vector<double>(columns()));
+        for (int i = 0; i < rows(); i++) {
+            for (int j = 0; j < columns(); j++) {
+                result[i][j] = elements[i][j] - other.elements[i][j];
+            }
+        }
+
+        return Matrix(result);
+    }
+
+    Matrix operator*(const Matrix& other) const {
+        if (columns() != other.rows()) {
+            throw invalid_argument("Стобцов в первой матрице должно быть столько же, сколько строк во второй");
+        }
+
+        int resultRows = rows();
+        int resultColumns = other.columns();
+        int commonSize = columns();
+
+        vector<vector<double>> result(resultRows, vector<double>(resultColumns));
+        for (int i = 0; i < resultRows; i++) {
+            for (int j = 0; j < resultColumns; j++) {
+                for (int k = 0; k < commonSize; k++) {
+                    result[i][j] += elements[i][k] * other.elements[k][j];
+                }
+            }
+        }
+
+        return Matrix(result);
+    }
+
+    Matrix operator*(double scalar) const {
+        vector<vector<double>> result(rows(), vector<double>(columns()));
+        for (int i = 0; i < rows(); i++) {
+            for (int j = 0; j < columns(); j++) {
+                result[i][j] = elements[i][j] * scalar;
+            }
+        }
+
+        return Matrix(result);
+    }
+
+    Matrix operator/(double scalar) const {
+        if (scalar == 0) {
+            throw invalid_argument("Деление на ноль");
+        }
+
+        vector<vector<double>> result(rows(), vector<double>(columns()));
+        for (int i = 0; i < rows(); i++) {
+            for (int j = 0; j < columns(); j++) {
+                result[i][j] = elements[i][j] / scalar;
+            }
+        }
+
+        return Matrix(result);
+    }
+    friend Vector operator*(const Vector& v, const Matrix& m);
+    friend Vector operator*(const Matrix& m, const Vector& v);
+};
+
+void print(const Matrix& matrix) {
+    for (int i = 0; i < matrix.rows(); i++) {
+        for (int j = 0; j < matrix.columns(); j++) {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+void print(const Vector& vector) {
+    for (int i = 0; i < vector.size(); i++) {
+        cout << vector[i] << " ";
+    }
+    cout << endl;
+}
+
+Vector operator*(const Vector& v, const Matrix& m){
+    vector<double> result(v.size());
+    for(int i=0;i<v.size();i++){
+        double sum =0;
+        for(int j=0; j<v.size();j++){
+            sum+=m.elements[i][j]*v.elements[j];
+        }
+        result[i]=sum;
+    }
+    Vector otv(result);
+    return otv;
+}
+Vector operator*(const Matrix& m, const Vector& v){
+    vector<double> result(v.size());
+    for(int i=0;i<v.size();i++){
+        double sum =0;
+        for(int j=0; j<v.size();j++){
+            sum+=m.elements[i][j]*v.elements[j];
+        }
+        result[i]=sum;
+    }
+    Vector otv(result);
+    return otv;
+}
+
+int main() {
+    //
+    vector<double> values1 = { 1.0, 2.0, 3.0 };
+
+    Vector vector1(values1);
+
+    vector<vector<double>> values2 = { {1.0, 2.0, 3.0},
+                                       {4.0, 5.0, 6.0},
+                                       {7.0, 8.0, 9.0} };
+
+    Matrix matrix1(values2);
+
+    Vector mul1 = matrix1*vector1;
+
+    cout << "Matrix1*Vector1: ";
+    print(mul1);
+
+    Vector mul2 = vector1*matrix1;
+
+    cout << "Vector1*Matrix1: ";
+    print(mul2);
+}
