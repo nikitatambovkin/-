@@ -1,0 +1,162 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Matrix {
+private:
+    vector<vector<double>> elements;
+
+public:
+    Matrix(vector<vector<double>> values) : elements(values) {}
+
+    int rows() const {
+        return elements.size();
+    }
+
+    int columns() const {
+        if (rows() > 0) {
+            return elements[0].size();
+        }
+        return 0;
+    }
+
+    vector<double>& operator[](int index) {
+        return elements[index];
+    }
+
+    const vector<double>& operator[](int index) const {
+        return elements[index];
+    }
+
+    Matrix operator+(const Matrix& other) const {
+        if (rows() != other.rows() || columns() != other.columns()) {
+            throw invalid_argument("Размер матриц должен быть одинаков.");
+        }
+
+        vector<vector<double>> result(rows(), vector<double>(columns()));
+        for (int i = 0; i < rows(); i++) {
+            for (int j = 0; j < columns(); j++) {
+                result[i][j] = elements[i][j] + other.elements[i][j];
+            }
+        }
+
+        return Matrix(result);
+    }
+
+    Matrix operator-(const Matrix& other) const {
+        if (rows() != other.rows() || columns() != other.columns()) {
+            throw invalid_argument("Размер матриц должен быть одинаков");
+        }
+
+        vector<vector<double>> result(rows(), vector<double>(columns()));
+        for (int i = 0; i < rows(); i++) {
+            for (int j = 0; j < columns(); j++) {
+                result[i][j] = elements[i][j] - other.elements[i][j];
+            }
+        }
+
+        return Matrix(result);
+    }
+
+    Matrix operator*(const Matrix& other) const {
+        if (columns() != other.rows()) {
+            throw invalid_argument("Стобцов в первой матрице должно быть столько же, сколько строк во второй");
+        }
+
+        int resultRows = rows();
+        int resultColumns = other.columns();
+        int commonSize = columns();
+
+        vector<vector<double>> result(resultRows, vector<double>(resultColumns));
+        for (int i = 0; i < resultRows; i++) {
+            for (int j = 0; j < resultColumns; j++) {
+                for (int k = 0; k < commonSize; k++) {
+                    result[i][j] += elements[i][k] * other.elements[k][j];
+                }
+            }
+        }
+
+        return Matrix(result);
+    }
+
+    Matrix operator*(double scalar) const {
+        vector<vector<double>> result(rows(), vector<double>(columns()));
+        for (int i = 0; i < rows(); i++) {
+            for (int j = 0; j < columns(); j++) {
+                result[i][j] = elements[i][j] * scalar;
+            }
+        }
+
+        return Matrix(result);
+    }
+
+    Matrix operator/(double scalar) const {
+        if (scalar == 0) {
+            throw invalid_argument("Деление на ноль");
+        }
+
+        vector<vector<double>> result(rows(), vector<double>(columns()));
+        for (int i = 0; i < rows(); i++) {
+            for (int j = 0; j < columns(); j++) {
+                result[i][j] = elements[i][j] / scalar;
+            }
+        }
+
+        return Matrix(result);
+    }
+};
+
+void printMatrix(const Matrix& matrix) {
+    for (int i = 0; i < matrix.rows(); i++) {
+        for (int j = 0; j < matrix.columns(); j++) {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+int main() {
+    vector<vector<double>> values1 = { {1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}, {7.0, 8.0, 9.0} };
+    vector<vector<double>> values2 = { {2.0, 4.0, 6.0}, {8.0, 10.0, 12.0}, {14.0, 16.0, 18.0} };
+
+    double scalar = 3.0;
+
+    Matrix matrix1(values1);
+    Matrix matrix2(values2);
+
+    Matrix sum = matrix1 + matrix2;
+    Matrix difference = matrix1 - matrix2;
+    Matrix product = matrix1 * matrix2;
+    Matrix scalar_mul_matrix1 = matrix1 * scalar;
+    Matrix scalar_div_matrix2 = matrix2 / scalar;
+
+    cout << "Matrix1:" << endl;
+    printMatrix(matrix1);
+    cout << endl;
+
+    cout << "Matrix2:" << endl;
+    printMatrix(matrix2);
+    cout << endl;
+
+    cout << "Matrix1 + Matrix2:" << endl;
+    printMatrix(sum);
+    cout << endl;
+
+    cout << "Matrix1 - Matrix2:" << endl;
+    printMatrix(difference);
+    cout << endl;
+
+    cout << "Matrix1 * Matrix2:" << endl;
+    printMatrix(product);
+    cout << endl;
+
+    cout << "Matrix1 * Scalar:" << endl;
+    printMatrix(scalar_mul_matrix1);
+    cout << endl;
+
+    cout << "Matrix2 / Scalar:" << endl;
+    printMatrix(scalar_div_matrix2);
+
+    return 0;
+}
