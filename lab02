@@ -1,0 +1,120 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+class Vector {
+private:
+    vector<double> elements;
+
+public:
+    Vector(vector<double> values) : elements(values) {}
+
+    int size() const {
+        return elements.size();
+    }
+
+    double& operator[](int index) {
+        return elements[index];
+    }
+
+    const double& operator[](int index) const {
+        return elements[index];
+    }
+    Vector operator+(const Vector& other) const {
+        if (size() != other.size()) {
+            throw invalid_argument("Векторы имеют одинаковый размер");
+        }
+
+        vector<double> result(size());
+        for (int i = 0; i < size(); i++) {
+            result[i] = elements[i] + other.elements[i];
+        }
+
+        return Vector(result);
+    }
+
+    Vector operator-(const Vector& other) const {
+        if (size() != other.size()) {
+            throw invalid_argument("Векторы имеют одинаковый размер");
+        }
+
+        vector<double> result(size());
+        for (int i = 0; i < size(); i++) {
+            result[i] = elements[i] - other.elements[i];
+        }
+
+        return Vector(result);
+    }
+
+    double operator*(const Vector& other) const {
+        if (size() != other.size()) {
+            throw invalid_argument("Векторы имеют одинаковый размер");
+        }
+
+        double result = 0.0;
+        for (int i = 0; i < size(); i++) {
+            result += elements[i] * other.elements[i];
+        }
+
+        return result;
+    }
+
+    Vector operator*(double scalar) const {
+        vector<double> result(size());
+        for (int i = 0; i < size(); i++) {
+            result[i] = elements[i] * scalar;
+        }
+
+        return Vector(result);
+    }
+
+    Vector operator/(double scalar) const {
+        if (scalar == 0) {
+            throw invalid_argument("Деление на ноль");
+        }
+
+        vector<double> result(size());
+        for (int i = 0; i < size(); i++) {
+            result[i] = elements[i] / scalar;
+        }
+
+        return Vector(result);
+    }
+};
+
+void printVector(const Vector& vector) {
+    for (int i = 0; i < vector.size(); i++) {
+        cout << vector[i] << " ";
+    }
+    cout << endl;
+}
+
+int main() {
+
+    vector<double> values1 = { 2.0, 3.0, 4.0 };
+    vector<double> values2 = { 5.0, 6.0, 8.0 };
+
+    double scalar = 3;
+
+    Vector vector1(values1);
+    Vector vector2(values2);
+
+    Vector sum = vector1 + vector2;
+    Vector difference = vector1 - vector2;
+
+    double mulVectors = vector1 * vector2;
+    Vector scalar_mul_vector1 = vector1 * scalar;
+    Vector scalar_dif_vector2 = vector2 / scalar;
+
+    cout << "Vector1: "; printVector(vector1);
+    cout << "Vector2: "; printVector(vector2);
+    cout << "Scalar: " << scalar << endl << endl;
+
+    cout << "Vector1 + Vector2: "; printVector(sum);
+    cout << "Vector1 - Vector2: "; printVector(difference);
+    cout << "Vector1 * Vector2: " << mulVectors << endl;
+    cout << "Vector1 * scalar: "; printVector(scalar_mul_vector1);
+    cout << "Vector2 / scalar: "; printVector(scalar_dif_vector2);
+
+    return 0;
+}
