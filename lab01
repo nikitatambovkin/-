@@ -1,0 +1,242 @@
+#include <iostream>
+
+using namespace std;
+
+struct product{
+    string name;
+    float price;
+    int amount;
+    product *next;
+};
+
+
+void addfirst(product*& bufet, string NewName, float  newprice, int newamount){
+    product *newproduct = new product;
+    newproduct -> name = NewName;
+    product *tmp = bufet;
+    while(tmp != NULL){
+        if(tmp -> name == NewName){
+            cout << "Элемент уже в списке";
+            return;
+        }
+        tmp = tmp -> next;}
+    newproduct -> price = newprice;
+    newproduct -> amount = newamount;
+    newproduct -> next = bufet;
+    bufet = newproduct;
+    return;
+}
+
+void printlist(product *bufet){
+    if (bufet == NULL){
+        cout<<"Список пустой";
+        return;
+    }
+    product *tmp = bufet;
+    while(tmp != NULL){
+        cout<<"Product: "<<tmp->name<<
+            "\nPrice: "<<tmp->price<<
+            "\nAmount: "<<tmp->amount<<"\n\n";
+        tmp = tmp->next;
+    }
+    return;
+}
+
+int addbefore( product *&bufet, string NewName, float newprice, int newamount, string NameBefore){
+    if ( bufet == NULL )
+        return 1;
+    if (bufet->name == NameBefore ){
+        addfirst( bufet, NewName, newprice, newamount );
+        return 0;
+    }
+    if ( bufet->next == NULL )
+        return 1;
+    product *prev = bufet, *tmp = bufet->next;
+    product *newproduct = new product;
+    newproduct -> name = NewName;
+    while(tmp->next!=NULL && tmp->name!=NameBefore){
+        if(tmp -> name == NewName){
+            cout << "Элемент уже в списке";
+            return 1;
+        }
+        prev = prev->next;
+        tmp = tmp->next;
+    }
+    if ( tmp->next==NULL && tmp->name!=NameBefore){
+        cout << "Элемент не в списке";
+        return 1;
+    }
+    newproduct->price = newprice;
+    newproduct->amount = newamount;
+    newproduct->next = tmp;
+    prev->next = newproduct;
+    return 0;
+}
+
+void addlast(product *&bufet, string newname, float newprice, int newamount){
+    product *tmp = bufet;
+    if ( bufet == NULL ){
+        addfirst( bufet, newname, newprice,newamount );
+        return;
+    }
+    product *newproduct = new product;
+    newproduct -> name = newname;
+    while(tmp != NULL){
+        if(tmp -> name == newname){
+            cout << "Элемент уже в списке";
+            return;
+        }
+        tmp = tmp -> next;
+    }
+    newproduct -> price = newprice;
+    newproduct -> amount = newamount;
+    newproduct -> next = NULL;
+    tmp -> next = newproduct;
+    return;
+}
+
+int addafter( product *bufet, string NewName, float newprice ,int newamount, string NameAfter){
+    if ( bufet == NULL )return 1;
+    product *tmp = bufet;
+    product *newproduct = new product;
+    newproduct -> name = NewName;
+    while(tmp != NULL) {
+        if (tmp->name == NewName) {
+            cout << "Элемент уже в списке";
+            return 1;
+        }
+        tmp = tmp->next;
+    }
+    tmp = bufet->next;
+    while(tmp != NULL && tmp->name != NameAfter){
+        tmp = tmp -> next;
+    }
+    if ( tmp == NULL )
+        return 1;
+    newproduct -> price = newprice;
+    newproduct -> amount = newamount;
+    newproduct -> next = tmp->next;
+    tmp->next = newproduct;
+    return 0;
+}
+
+int delproduct( product *&bufet, string DelName){
+    if ( bufet == NULL )
+        return 1;
+    product *tmp = bufet;
+    if ( bufet->name == DelName ){
+        bufet= bufet->next;
+        delete tmp;
+        return 0;
+    }
+    if ( bufet->next == NULL )
+        return 1;
+    product *prev = bufet;
+    tmp = bufet->next;
+    while(tmp->next != NULL && tmp->name != DelName){
+        prev = prev->next;
+        tmp = tmp->next;
+    }
+    if ( tmp->next==NULL && tmp->name!= DelName)
+        return 1;
+    prev->next = tmp->next;
+    delete tmp;
+    return 0;
+}
+void printname(product *bufet, string printname){
+    int k;
+    if (bufet == NULL){
+        cout<<"Список пустой"; return;
+    }
+    product *tmp = bufet;
+    while(tmp != NULL){
+        if (tmp->name == printname){
+            cout << "Product: " << tmp->name << "\nPrice: " << tmp->price << "\nAmount: " << tmp->amount
+                 << "\n\n";
+            k = 1;
+        } else
+            k =0;
+        tmp = tmp->next;
+    }
+    if (k == 0){
+        cout << "Такого товара нет";
+    }
+    return;
+}
+
+int main(){
+    product *bufet = NULL;
+    int res, k, amount;
+    string name, nameafter, namebefore;
+    float price;
+    bool flag = false;
+    while (!flag){
+            cout << "Добавить элемент в конец списка - 1;\n";
+            cout << "Добавить элемент в начало списка - 2;\n";
+            cout << "Удалить элемент - 3; \n";
+            cout << "Добавить после элемента - 4;\n";
+            cout << "Добавить перед элементом - 5;\n";
+            cout << "Найти элемент - 6;\n";
+            cout << "Список элементов - 7;\n";
+            cout << "Выход - 0: \n";
+            cin >> k;
+            cout << "\n\n";
+            switch(k){
+                case 0:{
+                    flag = true;
+                    break;
+                }
+                case 1:{
+                    cout << "name, price, amount: ";
+                    cin>>name>>price>>amount;
+                    addlast(bufet,name,price,amount);
+                    break;
+                }
+                case 2:{
+                    cout << "name, price, amount: ";
+                    cin>>name>>price>>amount;
+                    addfirst(bufet,name,price,amount);
+                    break;
+                }
+
+                case 3:{
+                    cout << "name: ";
+                    cin>>name;
+                    res = delproduct(bufet,name);
+                    break;
+                }
+                case 4:{
+                    cout << "name, price, amount: ";
+                    cin>>name>>price>>amount;
+                    cout << "nameafter: ";
+                    cin>>nameafter;
+                    res = addafter(bufet,name,price,amount,nameafter);
+                    break;
+                }
+                case 5:{
+                    cout << "name, price, amount: ";
+                    cin>>name>>price>>amount;
+                    cout << "namebefore: ";
+                    cin>>namebefore;
+                    res = addbefore(bufet,name,price,amount,namebefore);
+                    break;
+                }
+                case 6:{
+                    cout << "name: ";
+                    cin>>name;
+                    printname(bufet, name);
+                    break;
+                }
+                case 7:{
+                    printlist(bufet);
+                    break;
+                }
+                default:{
+                    cout<<"Error!\n";
+                    break;
+                }
+            }
+            cout<<"\n\n";
+        }
+    return 0;
+}
